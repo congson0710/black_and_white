@@ -1,0 +1,11 @@
+{
+  "name": "black_and_white",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Son Trinh, Khoa Thai",
+  "license": "ISC"
+}
