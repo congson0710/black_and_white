@@ -77,8 +77,8 @@ const typeDefs = gql`
   }
 `;
 
-const book_id = 5;
-const author_id = 3;
+let book_id = 5;
+let author_id = 3;
 
 const resolvers = {
   Query: {
