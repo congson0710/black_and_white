@@ -2,10 +2,7 @@ import Sequelize from 'sequelize';
 import casual from 'casual';
 import times from 'lodash/fp/times';
 
-const dbCredential = {
-  userName: 'congson',
-  password: '081196Son',
-};
+import dbCredential from './dbCredential';
 
 const db = new Sequelize(
   'black_and_white',
