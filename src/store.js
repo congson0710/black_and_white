@@ -24,6 +24,14 @@ const db = new Sequelize(
   },
 );
 
+db.authenticate()
+  .then(() => {
+    console.log('Connection has been established successfully.');
+  })
+  .catch(err => {
+    console.error('Unable to connect to the database:', err);
+  });
+
 // define models
 const AuthorModel = db.define('author', {
   first_name: {type: Sequelize.STRING},
