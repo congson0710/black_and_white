@@ -13,6 +13,7 @@
     "@babel/polyfill": "^7.2.5",
     "@babel/register": "^7.0.0",
     "apollo-server": "^2.3.1",
+    "casual": "^1.5.19",
     "esm": "^3.0.84",
     "graphql": "^14.0.2",
     "lodash": "^4.17.11",
