@@ -1,5 +1,6 @@
 import {ApolloServer, gql} from 'apollo-server';
 import {find, filter} from 'lodash';
+import {Author, Book} from './store';
 
 const books = [
   {
@@ -82,31 +83,27 @@ let author_id = 3;
 
 const resolvers = {
   Query: {
-    books: () => books,
-    book: (_, {id}) => find(books, {id}),
-    author: (_, {id}) => find(authors, {id}),
+    books: () => Book.findAll(),
+    book: (_, args) => Book.find({where: args}),
+    author: (_, args) => Author.find({where: args}),
   },
   Mutation: {
     addBook: (_, {title, cover_image_url, average_rating, authorId}) => {
-      book_id++;
-
-      const newBook = {
-        id: book_id,
+      return Book.create({
         title,
         cover_image_url,
         average_rating,
-        author_id,
-      };
-
-      books.push(newBook);
-      return newBook;
+        authorId,
+      }).then(book => {
+        return book;
+      });
     },
   },
   Author: {
-    books: author => filter(books, {authorId: author.id}),
+    books: author => author.getBooks(),
   },
   Book: {
-    author: book => filter(authors, {id: book.authorId}),
+    author: book => book.getAuthor(),
   },
 };
 
