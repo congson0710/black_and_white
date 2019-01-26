@@ -1,50 +1,25 @@
-import {ApolloServer, gql} from 'apollo-server';
-import {find, filter} from 'lodash';
-import {Author, Book} from './store';
+import { ApolloServer, gql, AuthenticationError } from 'apollo-server'
+import { find, filter } from 'lodash'
+import jwt from 'jsonwebtoken'
+import jwksClient from 'jwks-rsa'
 
-const books = [
-  {
-    id: 1,
-    title: 'The Trials of Brother Jero',
-    cover_image_url: 'ssdsds',
-    average_rating: 8,
-    authorId: 1,
-  },
-  {
-    id: 2,
-    title: 'Half of a Yellow Sun',
-    cover_image_url: 'dsdsds',
-    average_rating: 9,
-    authorId: 3,
-  },
-  {
-    id: 3,
-    title: 'Americanah',
-    cover_image_url: 'dsdsds',
-    average_rating: 9,
-    authorId: 3,
-  },
-  {
-    id: 4,
-    title: 'King Baabu',
-    cover_image_url: 'sdsds',
-    average_rating: 7,
-    authorId: 1,
-  },
-  {
-    id: 5,
-    title: 'Children of Blood and Bone',
-    cover_image_url: 'sdsds',
-    average_rating: 7,
-    authorId: 2,
-  },
-];
+import { Author, Book } from './store'
 
-const authors = [
-  {id: 1, first_name: 'Wole', last_name: 'Soyinka'},
-  {id: 2, first_name: 'Tomi', last_name: 'Adeyemi'},
-  {id: 3, first_name: 'Chimamanda', last_name: 'Adichie'},
-];
+const client = jwksClient({
+  jwksUri: 'https://blackandwhite.auth0.com/.well-known/jwks.json',
+})
+
+const getKey = (header, callback) => {
+  client.getSigningKey(header.kid, (err, key) => {
+    const signingKey = key.publicKey || key.rsaPublicKey
+    callback(null, signingKey)
+  })
+}
+
+const options = {
+  audience: '09FgOADNsF40LastIsFsyNZeCUP55Irc',
+  issuer: 'https://blackandwhite.auth0.com/',
+}
 
 const typeDefs = gql`
   type Author {
@@ -76,27 +51,36 @@ const typeDefs = gql`
       authorId: Int!
     ): Book!
   }
-`;
+`
 
-let book_id = 5;
-let author_id = 3;
+let book_id = 5
+let author_id = 3
 
 const resolvers = {
   Query: {
     books: () => Book.findAll(),
-    book: (_, args) => Book.find({where: args}),
-    author: (_, args) => Author.find({where: args}),
+    book: (_, args) => Book.find({ where: args }),
+    author: (_, args) => Author.find({ where: args }),
   },
   Mutation: {
-    addBook: (_, {title, cover_image_url, average_rating, authorId}) => {
-      return Book.create({
-        title,
-        cover_image_url,
-        average_rating,
-        authorId,
-      }).then(book => {
-        return book;
-      });
+    addBook: async (
+      _,
+      { title, cover_image_url, average_rating, authorId },
+      { user }
+    ) => {
+      try {
+        const email = await user
+        const bool = await Book.create({
+          title,
+          cover_image_url,
+          average_rating,
+          authorId,
+        })
+
+        return book
+      } catch (error) {
+        throw new AuthenticationError('You must be logged in to do this')
+      }
     },
   },
   Author: {
@@ -105,13 +89,33 @@ const resolvers = {
   Book: {
     author: book => book.getAuthor(),
   },
-};
+}
+
+const context = ({ req }) => {
+  // simple auth check on every request
+  const token = req.headers.authorization
+  const user = new Promise((resolve, reject) => {
+    jwt.verify(token, getKey, options, (err, decoded) => {
+      if (err) {
+        return reject(err)
+      }
+      resolve(decoded.email)
+    })
+  })
+
+  user.then(user => console.log('user', user))
+
+  return {
+    user,
+  }
+}
 
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-});
+  context,
+})
 
-server.listen().then(({url}) => {
-  console.log(`Server is ready at ${url}`);
-});
+server.listen().then(({ url }) => {
+  console.log(`Server is ready at ${url}`)
+})
