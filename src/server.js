@@ -1,5 +1,7 @@
 import { ApolloServer, gql, AuthenticationError } from 'apollo-server'
 import { find, filter } from 'lodash'
+import get from 'lodash/fp/get'
+import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
@@ -43,6 +45,12 @@ const typeDefs = gql`
     author(id: Int!): Author!
   }
 
+  type User {
+    id: Int!
+    email: String!
+    password: String!
+  }
+
   type Mutation {
     addBook(
       title: String!
@@ -50,6 +58,8 @@ const typeDefs = gql`
       average_rating: Float!
       authorId: Int!
     ): Book!
+
+    login(email: String!, password: String!): User!
   }
 `
 
@@ -82,6 +92,10 @@ const resolvers = {
         throw new AuthenticationError('You must be logged in to do this')
       }
     },
+    login: async (_, args) => {
+      const hash = crypto.createHash('sha256')
+      console.log('args', hash.update(get('password')(args)).digest('hex'))
+    },
   },
   Author: {
     books: author => author.getBooks(),
@@ -113,7 +127,7 @@ const context = ({ req }) => {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context,
+  // context,
 })
 
 server.listen().then(({ url }) => {
