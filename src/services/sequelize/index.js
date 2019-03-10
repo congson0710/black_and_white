@@ -1,3 +1,3 @@
-import { Author, Book, UserModel } from './modelRegister'
+import { Author, Book, User } from './modelRegister'
 
-export { Author, Book, UserModel }
+export { Author, Book, User }

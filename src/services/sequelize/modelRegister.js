@@ -27,5 +27,6 @@ sequelize.sync({ force: true }).then(() => {
 
 const Author = sequelize.models.author
 const Book = sequelize.models.book
+const User = sequelize.models.user
 
-export { Author, Book, UserModel }
+export { Author, Book, User }

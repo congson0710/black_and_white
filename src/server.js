@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
-import { Author, Book, UserModel as User } from './services/sequelize'
+import { Author, Book, User } from './services/sequelize'
 
 const client = jwksClient({
   jwksUri: 'https://blackandwhite.auth0.com/.well-known/jwks.json',
@@ -60,6 +60,8 @@ const typeDefs = gql`
     ): Book!
 
     login(email: String!, password: String!): User!
+
+    signUp(email: String!, password: String!): User!
   }
 `
 
@@ -92,15 +94,43 @@ const resolvers = {
         throw new AuthenticationError('You must be logged in to do this')
       }
     },
+    signUp: async (_, args) => {
+      const hash = crypto.createHash('sha256')
+      const CREATED_USER = true
+
+      try {
+        const result = await new Promise((resolve, reject) => {
+          User.findOrCreate({
+            where: {
+              email: get('email')(args),
+              password: hash.update(get('password')(args)).digest('hex'),
+            },
+          }).spread((user, created) => {
+            return created
+              ? resolve(user)
+              : reject(new Error('account nay co roi!'))
+          })
+        })
+        return result
+      } catch (error) {
+        throw error
+      }
+    },
     login: async (_, args) => {
       const hash = crypto.createHash('sha256')
-      console.log('args', hash.update(get('password')(args)).digest('hex'))
-      const result = User.find({
-        where: {
-          email: get('email')(args),
-          password: get('password')(args),
-        },
-      })
+      try {
+        const result = await User.findOne({
+          where: {
+            email: get('email')(args),
+            password: hash.update(get('password')(args)).digest('hex'),
+          },
+        })
+        if (result) {
+          return result
+        }
+      } catch (error) {
+        throw new Error('Can not login!')
+      }
     },
   },
   Author: {
@@ -122,8 +152,6 @@ const context = ({ req }) => {
       resolve(decoded.email)
     })
   })
-
-  user.then(user => console.log('user', user))
 
   return {
     user,
