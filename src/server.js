@@ -5,7 +5,7 @@ import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
-import { Author, Book } from './store'
+import { Author, Book, UserModel as User } from './services/sequelize'
 
 const client = jwksClient({
   jwksUri: 'https://blackandwhite.auth0.com/.well-known/jwks.json',
@@ -95,6 +95,12 @@ const resolvers = {
     login: async (_, args) => {
       const hash = crypto.createHash('sha256')
       console.log('args', hash.update(get('password')(args)).digest('hex'))
+      const result = User.find({
+        where: {
+          email: get('email')(args),
+          password: get('password')(args),
+        },
+      })
     },
   },
   Author: {

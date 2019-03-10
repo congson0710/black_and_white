@@ -4,9 +4,11 @@ import times from 'lodash/fp/times'
 import { database as sequelize } from './databaseConfig'
 import { AuthorModel as AuthorModelCreator } from './Models/AuthorModel'
 import { BookModel as BookModelCreator } from './Models/BookModel'
+import { UserModelCreator } from './Models/UserModel'
 
 const AuthorModel = AuthorModelCreator(sequelize, Sequelize)
 const BookModel = BookModelCreator(sequelize, Sequelize)
+const UserModel = UserModelCreator(sequelize, Sequelize)
 
 sequelize.sync({ force: true }).then(() => {
   times(() => {
@@ -26,4 +28,4 @@ sequelize.sync({ force: true }).then(() => {
 const Author = sequelize.models.author
 const Book = sequelize.models.book
 
-export { Author, Book }
+export { Author, Book, UserModel }
