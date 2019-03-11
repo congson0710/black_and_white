@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
 import { Author, Book, User } from './services/sequelize'
+import schema from './services/graphql'
 
 const client = jwksClient({
   jwksUri: 'https://blackandwhite.auth0.com/.well-known/jwks.json',
@@ -159,9 +160,7 @@ const context = ({ req }) => {
 }
 
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-  // context,
+  schema,
 })
 
 server.listen().then(({ url }) => {
