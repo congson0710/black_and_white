@@ -3,6 +3,11 @@ const typeDefs = `
     id: Int!
     email: String!
     password: String!
+    userName: String!
+  }
+
+  type Query {
+    userName: String!
   }
 
   type Mutation{
