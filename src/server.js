@@ -1,7 +1,5 @@
 import { ApolloServer, gql, AuthenticationError } from 'apollo-server'
-import { find, filter } from 'lodash'
 import get from 'lodash/fp/get'
-import crypto from 'crypto'
 import jwt from 'jsonwebtoken'
 import jwksClient from 'jwks-rsa'
 
@@ -22,67 +20,6 @@ const getKey = (header, callback) => {
 const options = {
   audience: '09FgOADNsF40LastIsFsyNZeCUP55Irc',
   issuer: 'https://blackandwhite.auth0.com/',
-}
-
-const typeDefs = gql`
-  type Author {
-    id: Int!
-    first_name: String!
-    last_name: String!
-    books: [Book]!
-  }
-
-  type Book {
-    id: Int!
-    title: String!
-    cover_image_url: String!
-    average_rating: Float!
-    author: Author!
-  }
-
-  type Query {
-    books: [Book!]!
-    book(id: Int!): Book!
-    author(id: Int!): Author!
-  }
-
-  type Mutation {
-    addBook(
-      title: String!
-      cover_image_url: String!
-      average_rating: Float!
-      authorId: Int!
-    ): Book!
-  }
-`
-
-const resolvers = {
-  Query: {
-    books: () => Book.findAll(),
-    book: (_, args) => Book.find({ where: args }),
-    author: (_, args) => Author.find({ where: args }),
-  },
-  Mutation: {
-    addBook: async (
-      _,
-      { title, cover_image_url, average_rating, authorId },
-      { user }
-    ) => {
-      try {
-        const email = await user
-        const bool = await Book.create({
-          title,
-          cover_image_url,
-          average_rating,
-          authorId,
-        })
-
-        return book
-      } catch (error) {
-        throw new AuthenticationError('You must be logged in to do this')
-      }
-    },
-  },
 }
 
 const context = ({ req }) => {
