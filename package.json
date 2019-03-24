@@ -13,6 +13,9 @@
     "casual": "^1.5.19",
     "esm": "^3.0.84",
     "graphql": "^14.0.2",
+    "graphql-tools": "^4.0.4",
+    "jsonwebtoken": "^8.4.0",
+    "jwks-rsa": "^1.3.0",
     "lodash": "^4.17.11",
     "nodemon": "^1.18.9",
     "pg": "^7.8.0",
@@ -24,6 +27,10 @@
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
-    "babel-register": "^6.26.0"
+    "babel-register": "^6.26.0",
+    "eslint": "^5.15.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "prettier": "^1.15.3"
   }
 }
