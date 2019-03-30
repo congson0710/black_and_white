@@ -13,15 +13,14 @@ const resolvers = {
       const hash = crypto.createHash('sha256')
       const hashPassword = password => hash.update(password).digest('hex')
       const parseSignUpParams = args => ({
-        userName: get('userName'),
+        userName: get('userName')(args),
         password: flow(
           get('password'),
           hashPassword
-        ),
-        firstName: get('firstName'),
-        lastName: get('lastName'),
+        )(args),
+        firstName: get('firstName')(args),
+        lastName: get('lastName')(args),
       })
-
       try {
         const result = await new Promise((resolve, reject) => {
           User.findOrCreate({
